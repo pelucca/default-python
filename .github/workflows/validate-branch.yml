@@ -1,0 +1,41 @@
+name: Validate Branch Merge
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches:
+      - main
+      - dev
+      - release/**
+
+jobs:
+  validate-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check branch merge direction
+        run: |
+          echo "🔍 Validating merge direction..."
+          SOURCE_BRANCH="${{ github.head_ref }}"
+          TARGET_BRANCH="${{ github.base_ref }}"
+
+          echo "Source: $SOURCE_BRANCH → Target: $TARGET_BRANCH"
+
+          # Regra 1: feature/* só pode ir pra dev
+          if [[ "$SOURCE_BRANCH" == feature/* && "$TARGET_BRANCH" != "dev" ]]; then
+            echo "❌ Features só podem ser mergeadas em dev."
+            exit 1
+          fi
+
+          # Regra 2: dev só pode ir pra release/*
+          if [[ "$SOURCE_BRANCH" == "dev" && "$TARGET_BRANCH" != release/* ]]; then
+            echo "❌ Dev só pode ser mergeado em release/*."
+            exit 1
+          fi
+
+          # Regra 3: release/* só pode ir pra main
+          if [[ "$SOURCE_BRANCH" == release/* && "$TARGET_BRANCH" != "main" ]]; then
+            echo "❌ Release só pode ser mergeada em main."
+            exit 1
+          fi
+
+          echo "✅ Merge direction is valid!"
