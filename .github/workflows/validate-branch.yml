@@ -2,14 +2,15 @@ name: Validate Branch Merge
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
     branches:
       - main
       - dev
       - release/**
+    types: [opened, synchronize, reopened, ready_for_review]
 
 jobs:
   validate-branch:
+    name: Validate Branch Merge
     runs-on: ubuntu-latest
     steps:
       - name: Check branch merge direction
@@ -17,7 +18,6 @@ jobs:
           echo "🔍 Validating merge direction..."
           SOURCE_BRANCH="${{ github.head_ref }}"
           TARGET_BRANCH="${{ github.base_ref }}"
-
           echo "Source: $SOURCE_BRANCH → Target: $TARGET_BRANCH"
 
           # Regra 1: feature/* só pode ir pra dev
